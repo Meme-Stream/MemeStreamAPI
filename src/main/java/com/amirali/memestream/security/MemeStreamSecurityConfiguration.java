@@ -47,7 +47,11 @@ public class MemeStreamSecurityConfiguration {
         return security
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/**").permitAll();
+                    auth.requestMatchers(
+                            "/auth/**",
+                            "/meme/getAllMetadata",
+                            "/meme/getMetadata/**",
+                            "/meme/get/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
