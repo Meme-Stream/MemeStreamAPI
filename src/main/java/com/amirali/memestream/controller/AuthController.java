@@ -1,4 +1,4 @@
-package com.amirali.memestream.controler;
+package com.amirali.memestream.controller;
 
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.model.AuthRequest;

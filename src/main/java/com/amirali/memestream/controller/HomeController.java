@@ -1,4 +1,4 @@
-package com.amirali.memestream.controler;
+package com.amirali.memestream.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

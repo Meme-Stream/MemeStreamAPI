@@ -1,4 +1,4 @@
-package com.amirali.memestream.controler;
+package com.amirali.memestream.controller;
 
 import com.amirali.memestream.model.MemeDTO;
 import com.amirali.memestream.model.PostMemeInput;
