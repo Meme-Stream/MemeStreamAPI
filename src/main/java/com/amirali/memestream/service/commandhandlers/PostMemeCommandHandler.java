@@ -37,12 +37,10 @@ public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResp
         meme.setChef(chef);
 
         final var file = input.getMeme();
-        if (meme.getType() != null && meme.getType() != MemeType.TEXT && file != null) {
-            meme.setType(meme.getType());
+        if (meme.getType() != null && meme.getType() != MemeType.TEXT && file != null)
             meme.setMeme(file.getBytes());
-        }else {
+        else
             meme.setType(MemeType.TEXT);
-        }
 
         final var id = memeRepository.save(meme).getId();
 
