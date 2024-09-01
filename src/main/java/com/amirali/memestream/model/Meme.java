@@ -1,5 +1,7 @@
 package com.amirali.memestream.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +18,7 @@ public class Meme {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
     @Column(name = "title")
@@ -26,6 +29,7 @@ public class Meme {
 
     @Lob
     @Column(name = "meme", columnDefinition = "MEDIUMBLOB")
+    @JsonIgnore
     private byte[] meme;
 
     @Enumerated(EnumType.STRING)
@@ -34,5 +38,6 @@ public class Meme {
 
     @ManyToOne
     @JoinColumn(name = "chef_id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Chef chef;
 }

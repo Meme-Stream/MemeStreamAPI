@@ -2,7 +2,6 @@ package com.amirali.memestream.service.commandhandlers;
 
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.model.Chef;
-import com.amirali.memestream.model.ChefDTO;
 import com.amirali.memestream.repository.ChefRepository;
 import com.amirali.memestream.service.Validator;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CreateChefCommandHandler implements Command<ChefDTO, SimpleResponse>  {
+public class CreateChefCommandHandler implements Command<Chef, SimpleResponse>  {
 
     private final Validator validator;
 
@@ -21,13 +20,11 @@ public class CreateChefCommandHandler implements Command<ChefDTO, SimpleResponse
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public ResponseEntity<SimpleResponse> execute(ChefDTO input) {
-        validator.validateChefDTOInput(input);
+    public ResponseEntity<SimpleResponse> execute(Chef input) {
+        validator.validateChefInput(input);
         input.setPassword(passwordEncoder.encode(input.getPassword()));
 
-        final var newChef = new Chef(input);
-
-        chefRepository.save(newChef);
+        chefRepository.save(input);
 
         return ResponseEntity.ok(new SimpleResponse("Success"));
     }

@@ -1,8 +1,8 @@
 package com.amirali.memestream.controller;
 
+import com.amirali.memestream.model.Chef;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.model.AuthRequest;
-import com.amirali.memestream.model.ChefDTO;
 import com.amirali.memestream.service.commandhandlers.AuthenticationCommandHandler;
 import com.amirali.memestream.service.commandhandlers.CreateChefCommandHandler;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class AuthController {
     private final AuthenticationCommandHandler authenticationCommandHandler;
 
     @PostMapping("/createChef")
-    public ResponseEntity<SimpleResponse> createChef(@RequestBody ChefDTO chefDTO) {
-        return createChefCommandHandler.execute(chefDTO);
+    public ResponseEntity<SimpleResponse> createChef(@RequestBody Chef chef) {
+        return createChefCommandHandler.execute(chef);
     }
 
     @PostMapping

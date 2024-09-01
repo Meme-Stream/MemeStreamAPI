@@ -1,7 +1,6 @@
 package com.amirali.memestream.service.queryhandlers;
 
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
-import com.amirali.memestream.model.MemeDTO;
 import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
@@ -32,15 +31,7 @@ public class GetMemeByIdQueryHandler implements Query<UUID, Object> {
                     .contentType(convertMemeTypeToMediaType(meme.getType()))
                     .body(resource);
         }else {
-            final var memeDTO = new MemeDTO(
-                    meme.getId(),
-                    meme.getTitle(),
-                    meme.getDescription(),
-                    meme.getChef().getName(),
-                    meme.getType()
-            );
-
-            return ResponseEntity.ok(memeDTO);
+            return ResponseEntity.ok(meme);
         }
     }
 

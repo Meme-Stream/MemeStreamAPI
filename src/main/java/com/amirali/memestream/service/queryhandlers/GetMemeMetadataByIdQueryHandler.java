@@ -1,7 +1,7 @@
 package com.amirali.memestream.service.queryhandlers;
 
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
-import com.amirali.memestream.model.MemeDTO;
+import com.amirali.memestream.model.Meme;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,22 +12,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class GetMemeMetadataByIdQueryHandler implements Query<UUID, MemeDTO> {
+public class GetMemeMetadataByIdQueryHandler implements Query<UUID, Meme> {
 
     private final MemeRepository memeRepository;
 
     @Override
-    public ResponseEntity<MemeDTO> execute(UUID id) {
+    public ResponseEntity<Meme> execute(UUID id) {
         final var meme = memeRepository.findById(id).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(id + " does not exist")));
 
-        final var memeDTO = new MemeDTO(
-                meme.getId(),
-                meme.getTitle(),
-                meme.getDescription(),
-                meme.getChef().getName(),
-                meme.getType()
-        );
-
-        return ResponseEntity.ok(memeDTO);
+        return ResponseEntity.ok(meme);
     }
 }

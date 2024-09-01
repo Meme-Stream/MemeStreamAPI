@@ -1,7 +1,6 @@
 package com.amirali.memestream.service.commandhandlers;
 
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
-import com.amirali.memestream.model.Meme;
 import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.PostMemeInput;
 import com.amirali.memestream.model.SimpleResponse;
@@ -27,23 +26,19 @@ public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResp
 
     @Override
     public ResponseEntity<SimpleResponse> execute(PostMemeInput input) throws IOException {
-        final var memeDTO = input.getMetadata();
+        final var meme = input.getMetadata();
 
-        validator.validateMemeDTOPInput(memeDTO);
+        validator.validateMemeInput(meme);
 
         final var chef = chefRepository
                 .findByName(((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
                 .orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse("Current chef does not exist")));
 
-        var meme = new Meme();
-
         meme.setChef(chef);
-        meme.setTitle(memeDTO.getTitle());
-        meme.setDescription(memeDTO.getDescription());
 
         final var file = input.getMeme();
-        if (memeDTO.getType() != MemeType.TEXT && file != null) {
-            meme.setType(memeDTO.getType());
+        if (meme.getType() != null && meme.getType() != MemeType.TEXT && file != null) {
+            meme.setType(meme.getType());
             meme.setMeme(file.getBytes());
         }else {
             meme.setType(MemeType.TEXT);

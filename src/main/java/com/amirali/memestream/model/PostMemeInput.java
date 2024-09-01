@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class PostMemeInput {
 
-    private MemeDTO metadata;
+    private Meme metadata;
 
     private MultipartFile meme;
 }

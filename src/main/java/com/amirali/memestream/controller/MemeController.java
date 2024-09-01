@@ -1,11 +1,11 @@
 package com.amirali.memestream.controller;
 
-import com.amirali.memestream.model.MemeDTO;
+import com.amirali.memestream.model.Meme;
 import com.amirali.memestream.model.PostMemeInput;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.service.commandhandlers.PostMemeCommandHandler;
-import com.amirali.memestream.service.queryhandlers.GetMemeByIdQueryHandler;
 import com.amirali.memestream.service.queryhandlers.GetAllMemeMetadata;
+import com.amirali.memestream.service.queryhandlers.GetMemeByIdQueryHandler;
 import com.amirali.memestream.service.queryhandlers.GetMemeMetadataByIdQueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -33,9 +33,9 @@ public class MemeController {
 
     @PostMapping(path = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<SimpleResponse> postMeme
-            (@RequestPart("metadata") MemeDTO memeDTO,
-            @RequestPart(name = "meme", required = false) MultipartFile multipartFile) throws IOException {
-        return postMemeCommandHandler.execute(new PostMemeInput(memeDTO, multipartFile));
+            (@RequestPart("metadata") Meme memeMetadata,
+            @RequestPart(name = "meme", required = false) MultipartFile meme) throws IOException {
+        return postMemeCommandHandler.execute(new PostMemeInput(memeMetadata, meme));
     }
 
     @GetMapping("/get/{uuid}")
@@ -44,12 +44,12 @@ public class MemeController {
     }
 
     @GetMapping("/getMetadata/{uuid}")
-    public ResponseEntity<MemeDTO> getMemeMetadataById(@PathVariable String uuid) {
+    public ResponseEntity<Meme> getMemeMetadataById(@PathVariable String uuid) {
         return getMemeMetadataByIdQueryHandler.execute(UUID.fromString(uuid));
     }
 
     @GetMapping("/getAllMetadata")
-    public ResponseEntity<List<MemeDTO>> getAllMemeMetadata
+    public ResponseEntity<List<Meme>> getAllMemeMetadata
             (@RequestParam("pageNumber") int pageNumber,
              @RequestParam("pageSize") int pageSize) {
 

@@ -2,10 +2,7 @@ package com.amirali.memestream.service;
 
 import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.exceptions.ItemAlreadyExistsException;
-import com.amirali.memestream.model.MemeDTO;
-import com.amirali.memestream.model.SimpleResponse;
-import com.amirali.memestream.model.AuthRequest;
-import com.amirali.memestream.model.ChefDTO;
+import com.amirali.memestream.model.*;
 import com.amirali.memestream.repository.ChefRepository;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +14,16 @@ public class Validator {
 
     private final ChefRepository chefRepository;
 
-    public void validateChefDTOInput(ChefDTO chefDTO) {
-        if (StringUtils.isBlank(chefDTO.getName()))
+    public void validateChefInput(Chef chef) {
+        if (StringUtils.isBlank(chef.getName()))
             throw new InvalidInputException(new SimpleResponse("Name cannot be null or contain whitespace"));
-        if (chefRepository.existsByName(chefDTO.getName()))
-            throw new ItemAlreadyExistsException(new SimpleResponse(chefDTO.getName() + " already exists"));
-        if (StringUtils.isBlank(chefDTO.getEmail()))
+        if (chefRepository.existsByName(chef.getName()))
+            throw new ItemAlreadyExistsException(new SimpleResponse(chef.getName() + " already exists"));
+        if (StringUtils.isBlank(chef.getEmail()))
             throw new InvalidInputException(new SimpleResponse("Email cannot be null or contain whitespace"));
-        if (StringUtils.isBlank(chefDTO.getPassword()))
+        if (StringUtils.isBlank(chef.getPassword()))
             throw new InvalidInputException(new SimpleResponse("Password cannot be null or contain whitespace"));
-        if (chefDTO.getPassword().length() <= 4)
+        if (chef.getPassword().length() <= 4)
             throw new InvalidInputException(new SimpleResponse("Password cannot be less than or equal 4 characters"));
     }
 
@@ -39,10 +36,10 @@ public class Validator {
             throw new InvalidInputException(new SimpleResponse("Password cannot be less than or equal 4 characters"));
     }
 
-    public void validateMemeDTOPInput(MemeDTO memeDTO) {
-        if (StringUtils.isBlank(memeDTO.getTitle()))
+    public void validateMemeInput(Meme meme) {
+        if (StringUtils.isBlank(meme.getTitle()))
             throw new InvalidInputException(new SimpleResponse("Title cannot be null or contain whitespace"));
-        if (StringUtils.isBlank(memeDTO.getDescription()))
+        if (StringUtils.isBlank(meme.getDescription()))
             throw new InvalidInputException(new SimpleResponse("Description cannot be null or contain whitespace"));
     }
 }

@@ -1,5 +1,7 @@
 package com.amirali.memestream.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,23 +19,21 @@ public class Chef {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JsonIgnore
     private UUID id;
 
     @Column(name = "name")
     private String name;
 
     @Column(name = "email")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;
 
     @Column(name = "password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @OneToMany(mappedBy = "chef")
+    @JsonIgnore
     private List<Meme> memes;
-
-    public Chef(ChefDTO chefDTO) {
-        this.name = chefDTO.getName();
-        this.email = chefDTO.getEmail();
-        this.password = chefDTO.getPassword();
-    }
 }

@@ -1,6 +1,6 @@
 package com.amirali.memestream.service.queryhandlers;
 
-import com.amirali.memestream.model.MemeDTO;
+import com.amirali.memestream.model.Meme;
 import com.amirali.memestream.repository.MemeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -11,21 +11,15 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetAllMemeMetadata implements Query<Pageable, List<MemeDTO>> {
+public class GetAllMemeMetadata implements Query<Pageable, List<Meme>> {
 
     private final MemeRepository memeRepository;
 
     @Override
-    public ResponseEntity<List<MemeDTO>> execute(Pageable pageable) {
+    public ResponseEntity<List<Meme>> execute(Pageable pageable) {
         final var memePage = memeRepository.findAll(pageable);
-        final var memeDTOList = memePage.stream().map(meme -> new MemeDTO(
-                meme.getId(),
-                meme.getTitle(),
-                meme.getDescription(),
-                meme.getChef().getName(),
-                meme.getType()
-        )).toList();
+        final var memeList = memePage.stream().toList();
 
-        return ResponseEntity.ok(memeDTOList);
+        return ResponseEntity.ok(memeList);
     }
 }
