@@ -11,4 +11,9 @@ public class HomeController {
     public ResponseEntity<String> welcome() {
         return ResponseEntity.ok("Welcome to Meme Stream");
     }
+
+    @GetMapping("/secret")
+    public ResponseEntity<String> secret() {
+        return ResponseEntity.ok("Very secret endpoint, only admins can access");
+    }
 }

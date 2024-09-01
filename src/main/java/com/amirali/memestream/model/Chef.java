@@ -33,6 +33,12 @@ public class Chef {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @Column(name = "role")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "chef_roles", joinColumns = @JoinColumn(name = "chef_id"))
+    @Enumerated(EnumType.STRING)
+    private List<Role> roles;
+
     @OneToMany(mappedBy = "chef")
     @JsonIgnore
     private List<Meme> memes;

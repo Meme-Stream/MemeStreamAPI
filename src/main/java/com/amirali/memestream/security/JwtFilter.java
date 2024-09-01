@@ -6,19 +6,21 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+
+    private final ChefDetailsService chefDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -30,7 +32,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null && jwtUtil.isTokenValid(token)) {
             final var name = jwtUtil.getSubject(token);
-            var authenticationToken = new UsernamePasswordAuthenticationToken(name, null, Collections.emptyList());
+            final var chefDetails = chefDetailsService.loadUserByUsername(name);
+            new AccountStatusUserDetailsChecker().check(chefDetails);
+
+            var authenticationToken = new UsernamePasswordAuthenticationToken(name, null, chefDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }

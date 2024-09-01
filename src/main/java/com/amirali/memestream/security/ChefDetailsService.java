@@ -21,6 +21,7 @@ public class ChefDetailsService implements UserDetailsService {
         var chef = chefRepository.findByName(username).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(username + " does not exists")));
         return User.withUsername(chef.getName())
                 .password(chef.getPassword())
+                .roles(chef.getRoles().stream().map(Enum::name).toArray(String[]::new))
                 .build();
     }
 }
