@@ -44,6 +44,6 @@ public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResp
 
         final var id = memeRepository.save(meme).getId();
 
-        return ResponseEntity.ok(new SimpleResponse("Your meme uploaded successfully with id of: " + id));
+        return ResponseEntity.ok(new SimpleResponse("Your meme uploaded successfully with id of: " + id.toString()));
     }
 }
