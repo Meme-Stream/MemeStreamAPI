@@ -11,7 +11,7 @@ import java.util.Date;
 @Service
 public class JwtUtil {
 
-    @Value("${SECRET}")
+    @Value("${application.password.secret}")
     private String secret;
 
     private static final long EXPIRATION_5_DAYS = 432_000_000;

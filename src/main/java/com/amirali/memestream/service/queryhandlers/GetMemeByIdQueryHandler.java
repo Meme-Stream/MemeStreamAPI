@@ -5,7 +5,7 @@ import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +23,8 @@ public class GetMemeByIdQueryHandler implements Query<UUID, Object> {
     public ResponseEntity<Object> execute(UUID id) {
         final var meme = memeRepository.findById(id).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(id + " does not exist")));
 
-        if (meme.getType() != MemeType.TEXT && meme.getMeme() != null) {
-            final var resource = new ByteArrayResource(meme.getMeme());
+        if (meme.getType() != MemeType.TEXT && meme.getMemePath() != null) {
+            final var resource = new FileSystemResource(meme.getMemePath());
 
             return ResponseEntity.status(HttpStatus.OK)
                     .header("Content-Disposition", "attachment")

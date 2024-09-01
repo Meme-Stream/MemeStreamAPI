@@ -17,7 +17,6 @@ import java.util.UUID;
 public class Meme {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
@@ -27,10 +26,9 @@ public class Meme {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Lob
-    @Column(name = "meme", columnDefinition = "MEDIUMBLOB")
+    @Column(name = "meme_path")
     @JsonIgnore
-    private byte[] meme;
+    private String memePath;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
