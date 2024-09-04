@@ -1,0 +1,29 @@
+services:
+  mysql:
+    image: mysql:8.0.39
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+  api:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_ROOT_USER: ${DB_ROOT_USER}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      SECRET: ${SECRET}
+      STORAGE_LOCATION: ${STORAGE_LOCATION}
+    volumes:
+      - memes:${STORAGE_LOCATION}
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:
+  memes:
