@@ -23,16 +23,12 @@ public class GetMemeByIdQueryHandler implements Query<UUID, Object> {
     public ResponseEntity<Object> execute(UUID id) {
         final var meme = memeRepository.findById(id).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(id + " does not exist")));
 
-        if (meme.getType() != MemeType.TEXT && meme.getMemePath() != null) {
-            final var resource = new FileSystemResource(meme.getMemePath());
+        final var resource = new FileSystemResource(meme.getMemePath());
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .header("Content-Disposition", "attachment")
-                    .contentType(convertMemeTypeToMediaType(meme.getType()))
-                    .body(resource);
-        }else {
-            return ResponseEntity.ok(meme);
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Content-Disposition", "attachment")
+                .contentType(convertMemeTypeToMediaType(meme.getType()))
+                .body(resource);
     }
 
     private MediaType convertMemeTypeToMediaType(MemeType type) {
@@ -40,7 +36,6 @@ public class GetMemeByIdQueryHandler implements Query<UUID, Object> {
             case VIDEO_MP4 -> MediaType.valueOf("video/mp4");
             case IMAGE_PNG -> MediaType.IMAGE_PNG;
             case IMAGE_JPEG -> MediaType.IMAGE_JPEG;
-            case TEXT -> MediaType.TEXT_PLAIN;
         };
     }
 }

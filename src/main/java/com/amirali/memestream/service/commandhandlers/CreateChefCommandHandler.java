@@ -1,5 +1,6 @@
 package com.amirali.memestream.service.commandhandlers;
 
+import com.amirali.memestream.exceptions.ItemAlreadyExistsException;
 import com.amirali.memestream.model.Role;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.model.Chef;
@@ -25,6 +26,8 @@ public class CreateChefCommandHandler implements Command<Chef, SimpleResponse>  
     @Override
     public ResponseEntity<SimpleResponse> execute(Chef input) {
         validator.validateChefInput(input);
+        if (chefRepository.existsByName(input.getName()))
+            throw new ItemAlreadyExistsException(new SimpleResponse(input.getName() + " already exists"));
         input.setPassword(passwordEncoder.encode(input.getPassword()));
         input.setRoles(List.of(Role.USER));
         chefRepository.save(input);

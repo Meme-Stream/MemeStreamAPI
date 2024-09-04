@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostMemeInput {
+public class MemeInput {
 
     private Meme metadata;
 

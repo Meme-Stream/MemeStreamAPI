@@ -1,9 +1,10 @@
 package com.amirali.memestream.controller;
 
 import com.amirali.memestream.model.Meme;
-import com.amirali.memestream.model.PostMemeInput;
+import com.amirali.memestream.model.MemeInput;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.service.commandhandlers.DeleteMemeByIdCommandHandler;
+import com.amirali.memestream.service.commandhandlers.EditMemeCommandHandler;
 import com.amirali.memestream.service.commandhandlers.PostMemeCommandHandler;
 import com.amirali.memestream.service.queryhandlers.GetAllMemeMetadata;
 import com.amirali.memestream.service.queryhandlers.GetMemeByIdQueryHandler;
@@ -34,11 +35,13 @@ public class MemeController {
 
     private final DeleteMemeByIdCommandHandler deleteMemeByIdCommandHandler;
 
+    private final EditMemeCommandHandler editMemeCommandHandler;
+
     @PostMapping(path = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<SimpleResponse> postMeme
             (@RequestPart Meme metadata,
-            @RequestPart(required = false) MultipartFile meme) throws IOException {
-        return postMemeCommandHandler.execute(new PostMemeInput(metadata, meme));
+            @RequestPart MultipartFile meme) throws IOException {
+        return postMemeCommandHandler.execute(new MemeInput(metadata, meme));
     }
 
     @GetMapping("/get/{uuid}")
@@ -62,5 +65,12 @@ public class MemeController {
     @DeleteMapping("/delete/{uuid}")
     public ResponseEntity<SimpleResponse> deleteMemeById(@PathVariable String uuid) throws IOException {
         return deleteMemeByIdCommandHandler.execute(UUID.fromString(uuid));
+    }
+
+    @PutMapping(path = "/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<SimpleResponse> editMeme
+            (@RequestPart Meme metadata,
+             @RequestPart MultipartFile meme) throws IOException {
+        return editMemeCommandHandler.execute(new MemeInput(metadata, meme));
     }
 }

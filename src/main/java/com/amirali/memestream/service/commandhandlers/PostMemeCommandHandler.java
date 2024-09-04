@@ -1,8 +1,9 @@
 package com.amirali.memestream.service.commandhandlers;
 
+import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
+import com.amirali.memestream.model.MemeInput;
 import com.amirali.memestream.model.MemeType;
-import com.amirali.memestream.model.PostMemeInput;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.ChefRepository;
 import com.amirali.memestream.repository.MemeRepository;
@@ -12,17 +13,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResponse> {
+public class PostMemeCommandHandler implements Command<MemeInput, SimpleResponse> {
 
     private final Validator validator;
 
@@ -34,10 +37,14 @@ public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResp
     private String storageLocation;
 
     @Override
-    public ResponseEntity<SimpleResponse> execute(PostMemeInput input) throws IOException {
+    public ResponseEntity<SimpleResponse> execute(MemeInput input) throws IOException {
         final var meme = input.getMetadata();
+        validator.validateMemeInput(meme, false);
 
-        validator.validateMemeInput(meme);
+        final var file = input.getMeme();
+        if (file.getBytes().length == 0) {
+            throw new InvalidInputException(new SimpleResponse("Content of the file cannot be empty"));
+        }
 
         final var chef = chefRepository
                 .findByName(((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
@@ -45,25 +52,18 @@ public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResp
 
         meme.setChef(chef);
 
-        final var file = input.getMeme();
         final var id = UUID.randomUUID();
         meme.setId(id);
 
-        if (meme.getType() != null && meme.getType() != MemeType.TEXT && file != null) {
-            final var storagePath = Paths.get(storageLocation);
+        final var storagePath = Paths.get(storageLocation);
+        if (!Files.exists(storagePath))
+            Files.createDirectories(storagePath);
 
-            if (!Files.exists(storagePath))
-                Files.createDirectories(storagePath);
+        final var memePath = storagePath.resolve(id + convertMemeTypeToFileExtension(meme.getType()));
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
 
-            final var filePath = storagePath.resolve(id + convertMemeTypeToFileExtension(meme.getType()));
-
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                meme.setMemePath(filePath.toString());
-            }
-        } else {
-            meme.setType(MemeType.TEXT);
+            meme.setMemePath(memePath.toString());
         }
 
         memeRepository.save(meme);
@@ -76,8 +76,12 @@ public class PostMemeCommandHandler implements Command<PostMemeInput, SimpleResp
             case VIDEO_MP4 -> ".mp4";
             case IMAGE_PNG -> ".png";
             case IMAGE_JPEG -> ".jpg";
-
-            case TEXT -> ".txt";
         };
+    }
+
+    private void copyMultipartFileToStorage(MultipartFile file, Path path) throws IOException {
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }

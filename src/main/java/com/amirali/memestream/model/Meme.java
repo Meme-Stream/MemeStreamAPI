@@ -17,7 +17,6 @@ import java.util.UUID;
 public class Meme {
 
     @Id
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UUID id;
 
     @Column(name = "title")

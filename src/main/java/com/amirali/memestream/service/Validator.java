@@ -1,9 +1,10 @@
 package com.amirali.memestream.service;
 
 import com.amirali.memestream.exceptions.InvalidInputException;
-import com.amirali.memestream.exceptions.ItemAlreadyExistsException;
-import com.amirali.memestream.model.*;
-import com.amirali.memestream.repository.ChefRepository;
+import com.amirali.memestream.model.AuthRequest;
+import com.amirali.memestream.model.Chef;
+import com.amirali.memestream.model.Meme;
+import com.amirali.memestream.model.SimpleResponse;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,13 +13,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class Validator {
 
-    private final ChefRepository chefRepository;
-
     public void validateChefInput(Chef chef) {
         if (StringUtils.isBlank(chef.getName()))
             throw new InvalidInputException(new SimpleResponse("Name cannot be null or contain whitespace"));
-        if (chefRepository.existsByName(chef.getName()))
-            throw new ItemAlreadyExistsException(new SimpleResponse(chef.getName() + " already exists"));
         if (StringUtils.isBlank(chef.getEmail()))
             throw new InvalidInputException(new SimpleResponse("Email cannot be null or contain whitespace"));
         if (StringUtils.isBlank(chef.getPassword()))
@@ -36,10 +33,17 @@ public class Validator {
             throw new InvalidInputException(new SimpleResponse("Password cannot be less than or equal 4 characters"));
     }
 
-    public void validateMemeInput(Meme meme) {
+    public void validateMemeInput(Meme meme, boolean checkId) {
+        if (checkId) {
+            if (meme.getId() == null) {
+                throw new InvalidInputException(new SimpleResponse("Id cannot be null"));
+            }
+        }
         if (StringUtils.isBlank(meme.getTitle()))
             throw new InvalidInputException(new SimpleResponse("Title cannot be null or contain whitespace"));
         if (StringUtils.isBlank(meme.getDescription()))
             throw new InvalidInputException(new SimpleResponse("Description cannot be null or contain whitespace"));
+        if (meme.getType() == null)
+            throw new InvalidInputException(new SimpleResponse("Type cannot be null"));
     }
 }
