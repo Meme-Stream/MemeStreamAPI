@@ -51,8 +51,12 @@ public class MemeStreamSecurityConfiguration {
                             "/auth/**",
                             "/meme/getAllMetadata",
                             "/meme/getMetadata/**",
-                            "/meme/get/**").permitAll();
-                    auth.requestMatchers("/secret").hasRole(Role.ADMIN.name());
+                            "/meme/get/**"
+                    ).permitAll();
+                    auth.requestMatchers(
+                            "/secret",
+                            "/admin/**"
+                    ).hasRole(Role.ADMIN.name());
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

@@ -1,7 +1,7 @@
 package com.amirali.memestream.controller;
 
 import com.amirali.memestream.model.Meme;
-import com.amirali.memestream.model.MemeInput;
+import com.amirali.memestream.model.MemeRequest;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.service.commandhandlers.DeleteMemeByIdCommandHandler;
 import com.amirali.memestream.service.commandhandlers.EditMemeCommandHandler;
@@ -41,7 +41,7 @@ public class MemeController {
     public ResponseEntity<SimpleResponse> postMeme
             (@RequestPart Meme metadata,
             @RequestPart MultipartFile meme) throws IOException {
-        return postMemeCommandHandler.execute(new MemeInput(metadata, meme));
+        return postMemeCommandHandler.execute(new MemeRequest(metadata, meme));
     }
 
     @GetMapping("/get/{uuid}")
@@ -71,6 +71,6 @@ public class MemeController {
     public ResponseEntity<SimpleResponse> editMeme
             (@RequestPart Meme metadata,
              @RequestPart MultipartFile meme) throws IOException {
-        return editMemeCommandHandler.execute(new MemeInput(metadata, meme));
+        return editMemeCommandHandler.execute(new MemeRequest(metadata, meme));
     }
 }

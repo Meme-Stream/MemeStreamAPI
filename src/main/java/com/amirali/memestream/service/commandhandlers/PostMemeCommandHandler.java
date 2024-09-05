@@ -2,7 +2,7 @@ package com.amirali.memestream.service.commandhandlers;
 
 import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
-import com.amirali.memestream.model.MemeInput;
+import com.amirali.memestream.model.MemeRequest;
 import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.ChefRepository;
@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class PostMemeCommandHandler implements Command<MemeInput, SimpleResponse> {
+public class PostMemeCommandHandler implements Command<MemeRequest, SimpleResponse> {
 
     private final Validator validator;
 
@@ -37,9 +37,9 @@ public class PostMemeCommandHandler implements Command<MemeInput, SimpleResponse
     private String storageLocation;
 
     @Override
-    public ResponseEntity<SimpleResponse> execute(MemeInput input) throws IOException {
+    public ResponseEntity<SimpleResponse> execute(MemeRequest input) throws IOException {
         final var meme = input.getMetadata();
-        validator.validateMemeInput(meme, false);
+        validator.validateMemeRequest(meme, false);
 
         final var file = input.getMeme();
         if (file.getBytes().length == 0) {

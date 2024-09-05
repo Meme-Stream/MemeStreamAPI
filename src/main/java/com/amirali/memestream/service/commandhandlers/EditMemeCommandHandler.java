@@ -3,7 +3,7 @@ package com.amirali.memestream.service.commandhandlers;
 import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
 import com.amirali.memestream.exceptions.SimpleException;
-import com.amirali.memestream.model.MemeInput;
+import com.amirali.memestream.model.MemeRequest;
 import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
@@ -23,7 +23,7 @@ import java.nio.file.StandardCopyOption;
 
 @Service
 @RequiredArgsConstructor
-public class EditMemeCommandHandler implements Command<MemeInput, SimpleResponse> {
+public class EditMemeCommandHandler implements Command<MemeRequest, SimpleResponse> {
 
     private final Validator validator;
 
@@ -33,9 +33,9 @@ public class EditMemeCommandHandler implements Command<MemeInput, SimpleResponse
     private String storageLocation;
 
     @Override
-    public ResponseEntity<SimpleResponse> execute(MemeInput input) throws IOException {
+    public ResponseEntity<SimpleResponse> execute(MemeRequest input) throws IOException {
         final var metadata = input.getMetadata();
-        validator.validateMemeInput(metadata, true);
+        validator.validateMemeRequest(metadata, true);
 
         final var file = input.getMeme();
         if (file.getBytes().length == 0) {

@@ -1,10 +1,7 @@
 package com.amirali.memestream.service;
 
 import com.amirali.memestream.exceptions.InvalidInputException;
-import com.amirali.memestream.model.AuthRequest;
-import com.amirali.memestream.model.Chef;
-import com.amirali.memestream.model.Meme;
-import com.amirali.memestream.model.SimpleResponse;
+import com.amirali.memestream.model.*;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +30,7 @@ public class Validator {
             throw new InvalidInputException(new SimpleResponse("Password cannot be less than or equal 4 characters"));
     }
 
-    public void validateMemeInput(Meme meme, boolean checkId) {
+    public void validateMemeRequest(Meme meme, boolean checkId) {
         if (checkId) {
             if (meme.getId() == null) {
                 throw new InvalidInputException(new SimpleResponse("Id cannot be null"));
@@ -45,5 +42,12 @@ public class Validator {
             throw new InvalidInputException(new SimpleResponse("Description cannot be null or contain whitespace"));
         if (meme.getType() == null)
             throw new InvalidInputException(new SimpleResponse("Type cannot be null"));
+    }
+
+    public void validateChefRoleRequest(ChefRoleRequest chefRoleRequest) {
+        if (StringUtils.isBlank(chefRoleRequest.getName()))
+            throw new InvalidInputException(new SimpleResponse("Name cannot be null or contain whitespace"));
+        if (chefRoleRequest.getRole() == null)
+            throw new InvalidInputException(new SimpleResponse("Role cannot be null"));
     }
 }
