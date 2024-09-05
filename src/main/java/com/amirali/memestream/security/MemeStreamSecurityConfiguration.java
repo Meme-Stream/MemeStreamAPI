@@ -54,7 +54,6 @@ public class MemeStreamSecurityConfiguration {
                             "/meme/get/**"
                     ).permitAll();
                     auth.requestMatchers(
-                            "/secret",
                             "/admin/**"
                     ).hasRole(Role.ADMIN.name());
                     auth.anyRequest().authenticated();
