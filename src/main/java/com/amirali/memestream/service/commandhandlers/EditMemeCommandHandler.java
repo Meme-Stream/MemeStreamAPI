@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -57,8 +58,8 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         } else {
             Files.deleteIfExists(memePath);
 
-            final var storagePath = Paths.get(storageLocation);
-            final var newMemePath = storagePath.resolve(meme.getId() + convertMemeTypeToFileExtension(metadata.getType()));
+            final var memeStoragePath = Paths.get(storageLocation, File.separator + "memes");
+            final var newMemePath = memeStoragePath.resolve(meme.getId() + convertMemeTypeToFileExtension(metadata.getType()));
 
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, newMemePath, StandardCopyOption.REPLACE_EXISTING);

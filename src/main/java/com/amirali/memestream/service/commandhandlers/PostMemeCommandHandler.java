@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -55,11 +56,11 @@ public class PostMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         final var id = UUID.randomUUID();
         meme.setId(id);
 
-        final var storagePath = Paths.get(storageLocation);
-        if (!Files.exists(storagePath))
-            Files.createDirectories(storagePath);
+        final var memeStoragePath = Paths.get(storageLocation, File.separator + "memes");
+        if (!Files.exists(memeStoragePath))
+            Files.createDirectories(memeStoragePath);
 
-        final var memePath = storagePath.resolve(id + convertMemeTypeToFileExtension(meme.getType()));
+        final var memePath = memeStoragePath.resolve(id + convertMemeTypeToFileExtension(meme.getType()));
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
 
