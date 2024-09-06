@@ -40,7 +40,7 @@ public class MemeController {
     @PostMapping(path = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<SimpleResponse> postMeme
             (@RequestPart Meme metadata,
-            @RequestPart MultipartFile meme) throws IOException {
+            @RequestPart(required = false) MultipartFile meme) throws IOException {
         return postMemeCommandHandler.execute(new MemeRequest(metadata, meme));
     }
 
@@ -70,7 +70,7 @@ public class MemeController {
     @PutMapping(path = "/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<SimpleResponse> editMeme
             (@RequestPart Meme metadata,
-             @RequestPart MultipartFile meme) throws IOException {
+             @RequestPart(required = false) MultipartFile meme) throws IOException {
         return editMemeCommandHandler.execute(new MemeRequest(metadata, meme));
     }
 }

@@ -3,10 +3,12 @@ package com.amirali.memestream.service.commandhandlers;
 import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
 import com.amirali.memestream.exceptions.SimpleException;
+import com.amirali.memestream.model.Meme;
 import com.amirali.memestream.model.MemeRequest;
 import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
+import com.amirali.memestream.service.StorageUtil;
 import com.amirali.memestream.service.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,18 +33,12 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
 
     private final MemeRepository memeRepository;
 
-    @Value("${application.storage.location}")
-    private String storageLocation;
+    private final StorageUtil storageUtil;
 
     @Override
     public ResponseEntity<SimpleResponse> execute(MemeRequest input) throws IOException {
         final var metadata = input.getMetadata();
         validator.validateMemeRequest(metadata, true);
-
-        final var file = input.getMeme();
-        if (file.getBytes().length == 0) {
-            throw new InvalidInputException(new SimpleResponse("Content of the file cannot be empty"));
-        }
 
         final var meme = memeRepository.findById(metadata.getId()).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(metadata.getId() + " dose not exist")));
         final var chefName = ((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -49,25 +46,7 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         if (!meme.getChef().getName().equals(chefName))
             throw new SimpleException(HttpStatus.FORBIDDEN, new SimpleResponse("You can't edit a meme that isn't yours"));
 
-
-        final var memePath = Paths.get(meme.getMemePath());
-        if (metadata.getType() == meme.getType()) {
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } else {
-            Files.deleteIfExists(memePath);
-
-            final var memeStoragePath = Paths.get(storageLocation, File.separator + "memes");
-            final var newMemePath = memeStoragePath.resolve(meme.getId() + convertMemeTypeToFileExtension(metadata.getType()));
-
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, newMemePath, StandardCopyOption.REPLACE_EXISTING);
-
-                meme.setType(metadata.getType());
-                meme.setMemePath(newMemePath.toString());
-            }
-        }
+        editMemeFile(input.getMeme(), meme, input.getMetadata());
 
         meme.setTitle(metadata.getTitle());
         meme.setDescription(metadata.getDescription());
@@ -77,12 +56,57 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         return ResponseEntity.ok(new SimpleResponse("Your meme has been updated"));
     }
 
-    private String convertMemeTypeToFileExtension(MemeType type) {
-        return switch (type) {
-            case VIDEO_MP4 -> ".mp4";
-            case IMAGE_PNG -> ".png";
-            case IMAGE_JPEG -> ".jpg";
-        };
+    private void editMemeFile(MultipartFile file, Meme meme, Meme metadata) throws IOException {
+        final var type = meme.getType();
+        final var metadataType = metadata.getType();
+
+        if (type == metadataType && metadataType != MemeType.TEXT) {
+            if (file != null && file.getBytes().length > 0) {
+                final var memePath = Paths.get(meme.getMemePath());
+                try (InputStream inputStream = file.getInputStream()) {
+                    Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } else {
+                throw new InvalidInputException(new SimpleResponse("File cannot be null or empty when setting meme type to video, image etc"));
+            }
+        }
+        if (type != metadataType && type != MemeType.TEXT && metadataType != MemeType.TEXT) {
+            if (file != null && file.getBytes().length > 0) {
+                var memePath = Paths.get(meme.getMemePath());
+                Files.deleteIfExists(memePath);
+
+                memePath = storageUtil.getMemePath(meme.getId(), metadataType);
+                try (InputStream inputStream = file.getInputStream()) {
+                    Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                meme.setType(metadataType);
+                meme.setMemePath(memePath.toString());
+            } else {
+                throw new InvalidInputException(new SimpleResponse("File cannot be null or empty when setting meme type to video, image etc"));
+            }
+        }
+        if (type != metadataType && metadataType == MemeType.TEXT) {
+            var memePath = Paths.get(meme.getMemePath());
+            Files.deleteIfExists(memePath);
+
+            meme.setType(metadataType);
+            meme.setMemePath(null);
+        }
+        if (type == MemeType.TEXT && metadataType != MemeType.TEXT) {
+            if (file != null && file.getBytes().length > 0) {
+                final var memePath = storageUtil.getMemePath(meme.getId(), metadataType);
+
+                try (InputStream inputStream = file.getInputStream()) {
+                    Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                meme.setType(metadataType);
+                meme.setMemePath(memePath.toString());
+            } else {
+                throw new InvalidInputException(new SimpleResponse("File cannot be null or empty when setting meme type to video, image etc"));
+            }
+        }
     }
 
 }
