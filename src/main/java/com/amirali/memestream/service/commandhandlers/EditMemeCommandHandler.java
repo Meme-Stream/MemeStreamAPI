@@ -33,6 +33,8 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
 
     private final StorageUtil storageUtil;
 
+    private boolean isAnythingChanged;
+
     @Override
     public ResponseEntity<SimpleResponse> execute(MemeRequest input) throws IOException {
         final var metadata = input.getMetadata();
@@ -44,18 +46,18 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         if (!meme.getChef().getName().equals(chefName))
             throw new SimpleException(HttpStatus.FORBIDDEN, new SimpleResponse("You can't edit a meme that isn't yours"));
 
-        var isAnythingUpdated = editMemeFile(input.getMeme(), meme, input.getMetadata());
+        editMemeFile(input.getMeme(), meme, input.getMetadata());
 
         if (StringUtils.isNotBlank(metadata.getTitle())) {
             meme.setTitle(metadata.getTitle());
-            isAnythingUpdated = true;
+            isAnythingChanged = true;
         }
         if (StringUtils.isNotBlank(metadata.getDescription())) {
             meme.setDescription(metadata.getDescription());
-            isAnythingUpdated = true;
+            isAnythingChanged = true;
         }
 
-        if (isAnythingUpdated) {
+        if (isAnythingChanged) {
             memeRepository.save(meme);
 
             return ResponseEntity.ok(new SimpleResponse("Your meme has been updated"));
@@ -64,7 +66,7 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         }
     }
 
-    private boolean editMemeFile(MultipartFile file, Meme meme, Meme metadata) throws IOException {
+    private void editMemeFile(MultipartFile file, Meme meme, Meme metadata) throws IOException {
         final var type = meme.getType();
         final var metadataType = metadata.getType();
 
@@ -75,8 +77,9 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
                     Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                return true;
+                isAnythingChanged = true;
             }
+            return;
         }
         if (type != metadataType && type != MemeType.TEXT && metadataType != MemeType.TEXT) {
             if (file != null && file.getBytes().length > 0) {
@@ -91,8 +94,9 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
                 meme.setType(metadataType);
                 meme.setMemePath(memePath.toString());
 
-                return true;
+                isAnythingChanged = true;
             }
+            return;
         }
         if (type != metadataType && metadataType == MemeType.TEXT) {
             var memePath = Paths.get(meme.getMemePath());
@@ -101,7 +105,8 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
             meme.setType(metadataType);
             meme.setMemePath(null);
 
-            return true;
+            isAnythingChanged = true;
+            return;
         }
         if (type == MemeType.TEXT && metadataType != MemeType.TEXT) {
             if (file != null && file.getBytes().length > 0) {
@@ -114,11 +119,9 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
                 meme.setType(metadataType);
                 meme.setMemePath(memePath.toString());
 
-                return true;
+                isAnythingChanged = true;
             }
         }
-
-        return false;
     }
 
 }
