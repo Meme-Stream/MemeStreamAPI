@@ -1,6 +1,5 @@
 package com.amirali.memestream.service.commandhandlers;
 
-import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
 import com.amirali.memestream.exceptions.SimpleException;
 import com.amirali.memestream.model.Meme;
@@ -10,6 +9,7 @@ import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
 import com.amirali.memestream.service.StorageUtil;
 import com.amirali.memestream.service.Validator;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,17 +44,27 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
         if (!meme.getChef().getName().equals(chefName))
             throw new SimpleException(HttpStatus.FORBIDDEN, new SimpleResponse("You can't edit a meme that isn't yours"));
 
-        editMemeFile(input.getMeme(), meme, input.getMetadata());
+        var isAnythingUpdated = editMemeFile(input.getMeme(), meme, input.getMetadata());
 
-        meme.setTitle(metadata.getTitle());
-        meme.setDescription(metadata.getDescription());
+        if (StringUtils.isNotBlank(metadata.getTitle())) {
+            meme.setTitle(metadata.getTitle());
+            isAnythingUpdated = true;
+        }
+        if (StringUtils.isNotBlank(metadata.getDescription())) {
+            meme.setDescription(metadata.getDescription());
+            isAnythingUpdated = true;
+        }
 
-        memeRepository.save(meme);
+        if (isAnythingUpdated) {
+            memeRepository.save(meme);
 
-        return ResponseEntity.ok(new SimpleResponse("Your meme has been updated"));
+            return ResponseEntity.ok(new SimpleResponse("Your meme has been updated"));
+        }else {
+            return ResponseEntity.ok(new SimpleResponse("Nothing changed"));
+        }
     }
 
-    private void editMemeFile(MultipartFile file, Meme meme, Meme metadata) throws IOException {
+    private boolean editMemeFile(MultipartFile file, Meme meme, Meme metadata) throws IOException {
         final var type = meme.getType();
         final var metadataType = metadata.getType();
 
@@ -64,8 +74,8 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
                 try (InputStream inputStream = file.getInputStream()) {
                     Files.copy(inputStream, memePath, StandardCopyOption.REPLACE_EXISTING);
                 }
-            } else {
-                throw new InvalidInputException(new SimpleResponse("File cannot be null or empty when setting meme type to video, image etc"));
+
+                return true;
             }
         }
         if (type != metadataType && type != MemeType.TEXT && metadataType != MemeType.TEXT) {
@@ -80,8 +90,8 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
 
                 meme.setType(metadataType);
                 meme.setMemePath(memePath.toString());
-            } else {
-                throw new InvalidInputException(new SimpleResponse("File cannot be null or empty when setting meme type to video, image etc"));
+
+                return true;
             }
         }
         if (type != metadataType && metadataType == MemeType.TEXT) {
@@ -90,6 +100,8 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
 
             meme.setType(metadataType);
             meme.setMemePath(null);
+
+            return true;
         }
         if (type == MemeType.TEXT && metadataType != MemeType.TEXT) {
             if (file != null && file.getBytes().length > 0) {
@@ -101,10 +113,12 @@ public class EditMemeCommandHandler implements Command<MemeRequest, SimpleRespon
 
                 meme.setType(metadataType);
                 meme.setMemePath(memePath.toString());
-            } else {
-                throw new InvalidInputException(new SimpleResponse("File cannot be null or empty when setting meme type to video, image etc"));
+
+                return true;
             }
         }
+
+        return false;
     }
 
 }

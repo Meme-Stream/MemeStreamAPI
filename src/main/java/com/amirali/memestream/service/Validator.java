@@ -30,24 +30,18 @@ public class Validator {
             throw new InvalidInputException(new SimpleResponse("Password cannot be less than or equal 4 characters"));
     }
 
-    public void validateMemeRequest(Meme meme, boolean checkId) {
-        if (checkId) {
+    public void validateMemeRequest(Meme meme, boolean editMode) {
+        if (editMode) {
             if (meme.getId() == null) {
                 throw new InvalidInputException(new SimpleResponse("Id cannot be null"));
             }
+        }else {
+            if (StringUtils.isBlank(meme.getTitle()))
+                throw new InvalidInputException(new SimpleResponse("Title cannot be null or contain whitespace"));
+            if (StringUtils.isBlank(meme.getDescription()))
+                throw new InvalidInputException(new SimpleResponse("Description cannot be null or contain whitespace"));
         }
-        if (StringUtils.isBlank(meme.getTitle()))
-            throw new InvalidInputException(new SimpleResponse("Title cannot be null or contain whitespace"));
-        if (StringUtils.isBlank(meme.getDescription()))
-            throw new InvalidInputException(new SimpleResponse("Description cannot be null or contain whitespace"));
         if (meme.getType() == null)
             throw new InvalidInputException(new SimpleResponse("Type cannot be null"));
-    }
-
-    public void validateChefRoleRequest(ChefRoleRequest chefRoleRequest) {
-        if (StringUtils.isBlank(chefRoleRequest.getName()))
-            throw new InvalidInputException(new SimpleResponse("Name cannot be null or contain whitespace"));
-        if (chefRoleRequest.getRole() == null)
-            throw new InvalidInputException(new SimpleResponse("Role cannot be null"));
     }
 }
