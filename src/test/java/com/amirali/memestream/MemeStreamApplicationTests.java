@@ -9,5 +9,4 @@ class MemeStreamApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
