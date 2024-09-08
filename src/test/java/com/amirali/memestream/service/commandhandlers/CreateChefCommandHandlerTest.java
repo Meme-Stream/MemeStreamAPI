@@ -16,7 +16,9 @@ import java.util.Objects;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +35,7 @@ class CreateChefCommandHandlerTest {
     }
 
     @Test
-    void createChef_returnsSuccessMessage() {
+    void validChefShouldBeCreatedWithSuccessMessage() {
         //given
         final var chef = new Chef();
         chef.setName("Test Chef");
@@ -44,13 +46,14 @@ class CreateChefCommandHandlerTest {
         final var response = createChefCommandHandler.execute(chef);
 
         //then
+        verify(chefRepository).save(any(Chef.class));
         assertThat(Objects.requireNonNull(response.getBody()).getResponse()).isEqualTo("Success");
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
 
     @Test
-    void createChef_returnsItemAlreadyExistsException() {
+    void chefWithDuplicateNameShouldFail() {
         //given
         final var chef = new Chef();
         chef.setName("Test Chef");
@@ -62,6 +65,6 @@ class CreateChefCommandHandlerTest {
         //when then
         assertThatThrownBy(() -> createChefCommandHandler.execute(chef))
                 .isInstanceOf(ItemAlreadyExistsException.class)
-                .hasMessageContaining(chef.getName() + " already exists");
+                .hasMessage(chef.getName() + " already exists");
     }
 }

@@ -2,6 +2,7 @@ package com.amirali.memestream.service.commandhandlers;
 
 import com.amirali.memestream.exceptions.ItemDoesNotExistException;
 import com.amirali.memestream.exceptions.SimpleException;
+import com.amirali.memestream.model.MemeType;
 import com.amirali.memestream.model.Role;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.MemeRepository;
@@ -34,8 +35,10 @@ public class DeleteMemeByIdCommandHandler implements Command<UUID, SimpleRespons
                 throw new SimpleException(HttpStatus.FORBIDDEN, new SimpleResponse("You can't delete a meme that isn't yours"));
         }
 
-        final var memePath = Paths.get(meme.getMemePath());
-        Files.deleteIfExists(memePath);
+        if (meme.getType() != MemeType.TEXT) {
+            final var memePath = Paths.get(meme.getMemePath());
+            Files.deleteIfExists(memePath);
+        }
 
         memeRepository.delete(meme);
 
