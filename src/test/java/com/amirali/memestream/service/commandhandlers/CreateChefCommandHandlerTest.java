@@ -37,10 +37,11 @@ class CreateChefCommandHandlerTest {
     @Test
     void validChefShouldBeCreatedWithSuccessMessage() {
         //given
-        final var chef = new Chef();
-        chef.setName("Test Chef");
-        chef.setPassword("12345");
-        chef.setEmail("test@gmail.com");
+        final var chef = Chef.builder()
+                .name("Test chef")
+                .email("test@gmail.com")
+                .password("12345")
+                .build();
 
         //when
         final var response = createChefCommandHandler.execute(chef);
@@ -55,10 +56,11 @@ class CreateChefCommandHandlerTest {
     @Test
     void chefWithDuplicateNameShouldFail() {
         //given
-        final var chef = new Chef();
-        chef.setName("Test Chef");
-        chef.setPassword("12345");
-        chef.setEmail("test@gmail.com");
+        final var chef = Chef.builder()
+                .name("Test chef")
+                .email("test@gmail.com")
+                .password("12345")
+                .build();
 
         when(chefRepository.existsByName(anyString())).thenReturn(true);
 
