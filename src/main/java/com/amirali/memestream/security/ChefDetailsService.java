@@ -1,7 +1,5 @@
 package com.amirali.memestream.security;
 
-import com.amirali.memestream.exceptions.ItemDoesNotExistException;
-import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.repository.ChefRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -18,7 +16,7 @@ public class ChefDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var chef = chefRepository.findByName(username).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(username + " does not exists")));
+        var chef = chefRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException(username + " does not exists"));
         return User.withUsername(chef.getName())
                 .password(chef.getPassword())
                 .roles(chef.getRoles().stream().map(Enum::name).toArray(String[]::new))

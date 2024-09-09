@@ -10,6 +10,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,6 +23,12 @@ public class MemeStreamSecurityConfiguration {
     private final ChefDetailsService chefDetailsService;
 
     private final JwtFilter jwtFilter;
+
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
+
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,6 +66,12 @@ public class MemeStreamSecurityConfiguration {
                     auth.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter, JwtFilter.class)
+                .exceptionHandling(configurer -> {
+                    configurer.accessDeniedHandler(customAccessDeniedHandler);
+                    configurer.authenticationEntryPoint(customAuthenticationEntryPoint);
+                })
+                .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 }

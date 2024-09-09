@@ -1,5 +1,6 @@
 package com.amirali.memestream.security;
 
+import com.amirali.memestream.exceptions.InvalidTokenException;
 import com.amirali.memestream.service.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,14 +31,18 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
             token = authorizationHeader.substring(7);
 
-        if (token != null && jwtUtil.isTokenValid(token)) {
-            final var name = jwtUtil.getSubject(token);
-            final var chefDetails = chefDetailsService.loadUserByUsername(name);
-            new AccountStatusUserDetailsChecker().check(chefDetails);
+        if (token != null) {
+            if (jwtUtil.isTokenValid(token)) {
+                final var name = jwtUtil.getSubject(token);
+                final var chefDetails = chefDetailsService.loadUserByUsername(name);
+                new AccountStatusUserDetailsChecker().check(chefDetails);
 
-            var authenticationToken = new UsernamePasswordAuthenticationToken(name, null, chefDetails.getAuthorities());
+                var authenticationToken = new UsernamePasswordAuthenticationToken(name, null, chefDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }else {
+                throw new InvalidTokenException("Your token is invalid");
+            }
         }
 
         filterChain.doFilter(request, response);
