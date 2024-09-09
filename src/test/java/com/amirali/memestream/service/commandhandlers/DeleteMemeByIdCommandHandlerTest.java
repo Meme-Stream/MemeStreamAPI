@@ -1,5 +1,6 @@
 package com.amirali.memestream.service.commandhandlers;
 
+import com.amirali.memestream.configurations.MemeStreamConfigurationTest;
 import com.amirali.memestream.exceptions.SimpleException;
 import com.amirali.memestream.model.Chef;
 import com.amirali.memestream.model.Meme;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = MemeStreamConfigurationTest.class)
 class DeleteMemeByIdCommandHandlerTest {
 
     @Mock

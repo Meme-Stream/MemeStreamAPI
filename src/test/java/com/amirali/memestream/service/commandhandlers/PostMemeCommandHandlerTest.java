@@ -1,5 +1,6 @@
 package com.amirali.memestream.service.commandhandlers;
 
+import com.amirali.memestream.configurations.MemeStreamConfigurationTest;
 import com.amirali.memestream.exceptions.InvalidInputException;
 import com.amirali.memestream.model.*;
 import com.amirali.memestream.repository.ChefRepository;
@@ -33,7 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = MemeStreamConfigurationTest.class)
 @WithMockChef
 class PostMemeCommandHandlerTest {
 
