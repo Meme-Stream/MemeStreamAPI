@@ -6,9 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -22,7 +20,7 @@ public class ExceptionConfiguration {
         return ResponseEntity.status(exception.getStatus()).body(exception.getResponse());
     }
 
-    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class, InvalidTokenException.class, AuthenticationException.class})
+    @ExceptionHandler({InvalidTokenException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> handleAuthExceptions(Exception exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new ErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED.value(), LocalDateTime.now())
