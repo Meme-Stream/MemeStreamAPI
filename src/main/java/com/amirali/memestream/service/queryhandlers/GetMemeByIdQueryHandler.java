@@ -31,6 +31,7 @@ public class GetMemeByIdQueryHandler implements Query<UUID, Object> {
                     .contentType(MemeType.convertMemeTypeToMediaType(meme.getType()))
                     .body(resource);
         }else {
+            meme.setLikesSize(meme.getLikes().size());
             return ResponseEntity.ok(meme);
         }
     }

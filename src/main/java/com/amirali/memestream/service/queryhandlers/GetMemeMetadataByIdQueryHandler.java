@@ -19,7 +19,7 @@ public class GetMemeMetadataByIdQueryHandler implements Query<UUID, Meme> {
     @Override
     public ResponseEntity<Meme> execute(UUID id) {
         final var meme = memeRepository.findById(id).orElseThrow(() -> new ItemDoesNotExistException(new SimpleResponse(id + " does not exist")));
-
+        meme.setLikesSize(meme.getLikes().size());
         return ResponseEntity.ok(meme);
     }
 }

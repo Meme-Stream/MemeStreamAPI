@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,4 +40,12 @@ public class Meme {
     @JoinColumn(name = "chef_id")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Chef chef;
+
+    @OneToMany(mappedBy = "meme", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private List<Like> likes;
+
+    @Transient
+    @JsonProperty("likes")
+    private int likesSize;
 }

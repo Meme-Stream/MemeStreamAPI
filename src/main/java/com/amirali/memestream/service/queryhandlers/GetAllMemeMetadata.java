@@ -18,8 +18,9 @@ public class GetAllMemeMetadata implements Query<Pageable, List<Meme>> {
     @Override
     public ResponseEntity<List<Meme>> execute(Pageable pageable) {
         final var memePage = memeRepository.findAll(pageable);
-        final var memeList = memePage.stream().toList();
+        for (Meme meme : memePage.getContent())
+            meme.setLikesSize(meme.getLikes().size());
 
-        return ResponseEntity.ok(memeList);
+        return ResponseEntity.ok(memePage.getContent());
     }
 }

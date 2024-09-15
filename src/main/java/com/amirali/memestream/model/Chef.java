@@ -44,4 +44,8 @@ public class Chef {
     @OneToMany(mappedBy = "chef")
     @JsonIgnore
     private List<Meme> memes;
+
+    @OneToMany(mappedBy = "chef")
+    @JsonIgnore
+    private List<Like> likedMemes;
 }
