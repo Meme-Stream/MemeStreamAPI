@@ -7,20 +7,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class GetAllMemeMetadata implements Query<Pageable, List<Meme>> {
+public class GetAllMemeMetadata implements Query<Pageable, Map<String, Object>> {
 
     private final MemeRepository memeRepository;
 
     @Override
-    public ResponseEntity<List<Meme>> execute(Pageable pageable) {
+    public ResponseEntity<Map<String, Object>> execute(Pageable pageable) {
         final var memePage = memeRepository.findAll(pageable);
         for (Meme meme : memePage.getContent())
             meme.setLikesSize(meme.getLikes().size());
 
-        return ResponseEntity.ok(memePage.getContent());
+        final var result = new LinkedHashMap<String, Object>();
+        result.put("totalElements", memePage.getTotalElements());
+        result.put("totalPages", memePage.getTotalPages());
+        result.put("content", memePage.getContent());
+
+        return ResponseEntity.ok(result);
     }
 }
