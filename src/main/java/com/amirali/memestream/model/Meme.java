@@ -22,10 +22,10 @@ public class Meme {
     @Id
     private UUID id;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @Column(name = "meme_path")

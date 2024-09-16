@@ -24,14 +24,14 @@ public class Chef {
     @JsonIgnore
     private UUID id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 

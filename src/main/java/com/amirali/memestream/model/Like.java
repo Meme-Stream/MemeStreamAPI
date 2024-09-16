@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "likes")
+@Table(name = "likes", uniqueConstraints = @UniqueConstraint(columnNames = {"meme_id", "chef_id"}))
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
