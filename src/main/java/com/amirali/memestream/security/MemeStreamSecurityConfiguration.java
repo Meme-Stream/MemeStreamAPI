@@ -58,7 +58,8 @@ public class MemeStreamSecurityConfiguration {
                             "/auth/**",
                             "/meme/getAllMetadata",
                             "/meme/getMetadata/**",
-                            "/meme/get/**"
+                            "/meme/get/**",
+                            "/meme/search"
                     ).permitAll();
                     auth.requestMatchers(
                             "/admin/**"

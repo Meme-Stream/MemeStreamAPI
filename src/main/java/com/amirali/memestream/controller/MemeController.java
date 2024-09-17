@@ -2,11 +2,13 @@ package com.amirali.memestream.controller;
 
 import com.amirali.memestream.model.Meme;
 import com.amirali.memestream.model.MemeRequest;
+import com.amirali.memestream.model.SearchRequest;
 import com.amirali.memestream.model.SimpleResponse;
 import com.amirali.memestream.service.commandhandlers.*;
 import com.amirali.memestream.service.queryhandlers.GetAllMemeMetadata;
 import com.amirali.memestream.service.queryhandlers.GetMemeByIdQueryHandler;
 import com.amirali.memestream.service.queryhandlers.GetMemeMetadataByIdQueryHandler;
+import com.amirali.memestream.service.queryhandlers.SearchMemeQueryHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -39,6 +41,8 @@ public class MemeController {
 
     private final UnLikeCommandHandler unLikeCommandHandler;
 
+    private final SearchMemeQueryHandler searchMemeQueryHandler;
+
     @PostMapping(path = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<SimpleResponse> postMeme
             (@RequestPart Meme metadata,
@@ -58,8 +62,8 @@ public class MemeController {
 
     @GetMapping("/getAllMetadata")
     public ResponseEntity<Map<String, Object>> getAllMemeMetadata
-            (@RequestParam("pageNumber") int pageNumber,
-             @RequestParam("pageSize") int pageSize) {
+            (@RequestParam int pageNumber,
+             @RequestParam int pageSize) {
 
         return getAllMemeMetadata.execute(PageRequest.of(pageNumber, pageSize));
     }
@@ -84,5 +88,13 @@ public class MemeController {
     @DeleteMapping("/unlike/{uuid}")
     public ResponseEntity<SimpleResponse> unlikeMeme(@PathVariable String uuid) {
         return unLikeCommandHandler.execute(UUID.fromString(uuid));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchMeme
+            (@RequestParam int pageNumber,
+             @RequestParam int pageSize,
+             @RequestParam String query)  {
+        return searchMemeQueryHandler.execute(new SearchRequest(query, PageRequest.of(pageNumber, pageSize)));
     }
 }
