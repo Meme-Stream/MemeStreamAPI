@@ -1,0 +1,100 @@
+package com.memestream.api.controller;
+
+import com.memestream.api.model.Meme;
+import com.memestream.api.model.MemeRequest;
+import com.memestream.api.model.SearchRequest;
+import com.memestream.api.model.SimpleResponse;
+import com.memestream.api.service.commandhandlers.*;
+import com.memestream.api.service.queryhandlers.GetAllMemeMetadata;
+import com.memestream.api.service.queryhandlers.GetMemeByIdQueryHandler;
+import com.memestream.api.service.queryhandlers.GetMemeMetadataByIdQueryHandler;
+import com.memestream.api.service.queryhandlers.SearchMemeQueryHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/meme")
+@RequiredArgsConstructor
+public class MemeController {
+
+    private final PostMemeCommandHandler postMemeCommandHandler;
+
+    private final GetMemeByIdQueryHandler getMemeByIdQueryHandler;
+
+    private final GetMemeMetadataByIdQueryHandler getMemeMetadataByIdQueryHandler;
+
+    private final GetAllMemeMetadata getAllMemeMetadata;
+
+    private final DeleteMemeByIdCommandHandler deleteMemeByIdCommandHandler;
+
+    private final EditMemeCommandHandler editMemeCommandHandler;
+
+    private final LikeMemeCommandHandler likeMemeCommandHandler;
+
+    private final UnLikeCommandHandler unLikeCommandHandler;
+
+    private final SearchMemeQueryHandler searchMemeQueryHandler;
+
+    @PostMapping(path = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<SimpleResponse> postMeme
+            (@RequestPart Meme metadata,
+            @RequestPart(required = false) MultipartFile meme) throws IOException {
+        return postMemeCommandHandler.execute(new MemeRequest(metadata, meme));
+    }
+
+    @GetMapping("/get/{uuid}")
+    public ResponseEntity<Object> getMemeById(@PathVariable String uuid) {
+        return getMemeByIdQueryHandler.execute(UUID.fromString(uuid));
+    }
+
+    @GetMapping("/getMetadata/{uuid}")
+    public ResponseEntity<Meme> getMemeMetadataById(@PathVariable String uuid) {
+        return getMemeMetadataByIdQueryHandler.execute(UUID.fromString(uuid));
+    }
+
+    @GetMapping("/getAllMetadata")
+    public ResponseEntity<Map<String, Object>> getAllMemeMetadata
+            (@RequestParam int pageNumber,
+             @RequestParam int pageSize) {
+
+        return getAllMemeMetadata.execute(PageRequest.of(pageNumber, pageSize));
+    }
+
+    @DeleteMapping("/delete/{uuid}")
+    public ResponseEntity<SimpleResponse> deleteMemeById(@PathVariable String uuid) throws IOException {
+        return deleteMemeByIdCommandHandler.execute(UUID.fromString(uuid));
+    }
+
+    @PutMapping(path = "/edit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<SimpleResponse> editMeme
+            (@RequestPart Meme metadata,
+             @RequestPart(required = false) MultipartFile meme) throws IOException {
+        return editMemeCommandHandler.execute(new MemeRequest(metadata, meme));
+    }
+
+    @PostMapping("/like/{uuid}")
+    public ResponseEntity<SimpleResponse> likeMeme(@PathVariable String uuid) {
+        return likeMemeCommandHandler.execute(UUID.fromString(uuid));
+    }
+
+    @DeleteMapping("/unlike/{uuid}")
+    public ResponseEntity<SimpleResponse> unlikeMeme(@PathVariable String uuid) {
+        return unLikeCommandHandler.execute(UUID.fromString(uuid));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Map<String, Object>> searchMeme
+            (@RequestParam int pageNumber,
+             @RequestParam int pageSize,
+             @RequestParam String query)  {
+        return searchMemeQueryHandler.execute(new SearchRequest(query, PageRequest.of(pageNumber, pageSize)));
+    }
+}
