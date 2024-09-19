@@ -54,17 +54,15 @@ class DeleteMemeByIdCommandHandlerTest {
         final var id = UUID.randomUUID();
 
         when(memeRepository.findById(id)).thenReturn(Optional.of(
-                new Meme(
-                        id,
-                        "Test meme",
-                        "This is a test meme",
-                        null,
-                        MemeType.TEXT,
-                        Chef.builder()
+                Meme.builder().id(id)
+                        .title("Test meme")
+                        .description("This is a test meme")
+                        .type(MemeType.TEXT)
+                        .chef(Chef.builder()
                                 .name("test chef")
                                 .roles(List.of(Role.USER, Role.ADMIN))
-                                .build()
-                )
+                                .build())
+                        .build()
         ));
         //when
         var response = deleteMemeByIdCommandHandler.execute(id);
@@ -82,17 +80,15 @@ class DeleteMemeByIdCommandHandlerTest {
         final var id = UUID.randomUUID();
 
         when(memeRepository.findById(id)).thenReturn(Optional.of(
-                new Meme(
-                        id,
-                        "Test meme",
-                        "This is a test meme",
-                        null,
-                        MemeType.TEXT,
-                        Chef.builder()
+                Meme.builder().id(id)
+                        .title("Test meme")
+                        .description("This is a test meme")
+                        .type(MemeType.TEXT)
+                        .chef(Chef.builder()
                                 .name("test chef")
                                 .roles(List.of(Role.USER))
-                                .build()
-                )
+                                .build())
+                        .build()
         ));
         //when
         var response = deleteMemeByIdCommandHandler.execute(id);
@@ -110,17 +106,15 @@ class DeleteMemeByIdCommandHandlerTest {
         final var id = UUID.randomUUID();
 
         when(memeRepository.findById(id)).thenReturn(Optional.of(
-                new Meme(
-                        id,
-                        "Test meme",
-                        "This is a test meme",
-                        null,
-                        MemeType.TEXT,
-                        Chef.builder()
+                Meme.builder().id(id)
+                        .title("Test meme")
+                        .description("This is a test meme")
+                        .type(MemeType.TEXT)
+                        .chef(Chef.builder()
                                 .name("test chef 2")
-                                .roles(List.of(Role.USER))
-                                .build()
-                )
+                                .roles(List.of(Role.USER, Role.ADMIN))
+                                .build())
+                        .build()
         ));
         //when
         assertThatThrownBy(() -> deleteMemeByIdCommandHandler.execute(id))
@@ -137,17 +131,16 @@ class DeleteMemeByIdCommandHandlerTest {
         final var id = UUID.randomUUID();
 
         when(memeRepository.findById(id)).thenReturn(Optional.of(
-                new Meme(
-                        id,
-                        "Test meme",
-                        "This is a test meme",
-                        storageUtil.getMemePath(id, MemeType.IMAGE_JPEG).toString(),
-                        MemeType.IMAGE_JPEG,
-                        Chef.builder()
+                Meme.builder().id(id)
+                        .title("Test meme")
+                        .description("This is a test meme")
+                        .memePath(storageUtil.getMemePath(id, MemeType.IMAGE_JPEG).toString())
+                        .type(MemeType.IMAGE_JPEG)
+                        .chef(Chef.builder()
                                 .name("test chef")
                                 .roles(List.of(Role.USER))
-                                .build()
-                )
+                                .build())
+                        .build()
         ));
         //when
         var response = deleteMemeByIdCommandHandler.execute(id);
